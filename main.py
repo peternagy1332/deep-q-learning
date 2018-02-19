@@ -11,7 +11,7 @@ from tflearn.layers.estimator import regression
 env = gym.make('CartPole-v0')
 env.reset()
 goal_steps = 500
-score_requirement = 50
+score_requirement = 10
 initial_games = 50
 discount_factor = 0.95
 
@@ -24,7 +24,7 @@ def game(Q):
         env.reset()
         score = 0
         game_memory = []
-        prev_observation = None
+        prev_observation = None # S
 
         for _ in range(goal_steps):
 
@@ -32,9 +32,9 @@ def game(Q):
             if prev_observation is not None:
                 prev_qualities = Q.predict(np.matrix(prev_observation))[0]
 
-                action = np.argmax(prev_qualities)
+                action = np.argmax(prev_qualities) # a
                 
-                observation, reward, done, _ = env.step(action)
+                observation, reward, done, _ = env.step(action) # r, S'
 
                 prev_qualities[action] = reward+discount_factor*max(Q.predict(np.matrix(observation))[0])
 
@@ -52,7 +52,8 @@ def game(Q):
 
             #env.render()
 
-            training_data.extend(game_memory)
+            if score>=score_requirement:
+                training_data.extend(game_memory)
 
             if done:
                 break
@@ -72,17 +73,17 @@ def neural_network_model():
     network = dropout(network, 0.8)
     network = fully_connected(network, 10, activation='relu')
     network = dropout(network, 0.8)
-    network = fully_connected(network, env.action_space.n, activation='softmax')
-    network = regression(network, optimizer='adam', learning_rate=1e-3, loss='categorical_crossentropy', name='targets')
+    network = fully_connected(network, env.action_space.n) # activation='softmax'
+    network = regression(network, optimizer='momentum', learning_rate=1e-3, loss='mean_square', name='targets')
     model = tflearn.DNN(network)
     return model
 
 
-def train_model(training_data, model):
+def train_model(training_data, Q):
     X = np.array([i[0] for i in training_data])
     Y = np.array([i[1] for i in training_data])
-    model.fit(X, Y, n_epoch=5, snapshot_step=1000, show_metric=True, run_id='openaistuff')
-    return model
+    Q.fit(X, Y, n_epoch=5, snapshot_step=1000, show_metric=True, run_id='Q-model')
+    return Q
 
 
 Q = neural_network_model()
