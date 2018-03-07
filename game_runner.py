@@ -1,17 +1,12 @@
 import gym
 import random
 import numpy as np
-from statistics import mean, median
-from collections import Counter, namedtuple
-import os
 import tensorflow as tf
-from tflearn import conv_2d, DNN
+from tflearn import conv_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
-from tflearn.layers.estimator import regression
 from neural import DQNUtils
 from config import Config
 from environment_wrapper import EnvironmentWrapper
-from game_runner import GameRunner
 
 class GameRunner(object):
     def __init__(self, session):
@@ -19,7 +14,7 @@ class GameRunner(object):
         self.saver = tf.train.Saver(max_to_keep=5)
         self.cfg = Config()
         self.dqnutils = DQNUtils(self.cfg)
-        self.wrapped_env = EnvironmentWrapper('CartPole-v0')
+        self.wrapped_env = EnvironmentWrapper(self.cfg)
         self.Q_state, self.Q, self.Q_target_state, self.Q_target, self.clone_Q_to_Q_target, self.actions, self.y, self.update = self.dqnutils.build_graph()
 
     def train(self):
