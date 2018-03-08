@@ -10,8 +10,8 @@ class EnvironmentWrapper(object):
         self.state_buffer = np.zeros((self.cfg.action_repeat-1, self.cfg.cropy, self.cfg.cropx))
     
     def get_initial_state(self):
-        initial_frame = self.__preprocess_frame(self.env.reset(mode='rgb_array'))
-        initial_state = np.stack([initial_frame for _ in range(self.cfg.action_repeat)])
+        self.env.reset()
+        initial_state = np.zeros((self.cfg.action_repeat, self.cfg.cropy, self.cfg.cropx))
         self.state_buffer = initial_state[:self.cfg.action_repeat-1]
         return initial_state
 
@@ -36,9 +36,12 @@ class EnvironmentWrapper(object):
         preprocessed_frame = self.__preprocess_frame(self.env.render(mode='rgb_array'))        
 
         next_state = np.zeros((self.cfg.action_repeat, self.cfg.cropy, self.cfg.cropx))
-
+        
         next_state[:self.cfg.action_repeat-1] = self.state_buffer
-        next_state[self.cfg.action_repeat] = preprocessed_frame
+        next_state[self.cfg.action_repeat-1] = preprocessed_frame
+
+        self.state_buffer[:self.cfg.action_repeat-3] = self.state_buffer[:self.cfg.action_repeat-3]
+        self.state_buffer[self.cfg.action_repeat-2] = preprocessed_frame
  
         return next_state, reward, done
         
@@ -58,3 +61,6 @@ class EnvironmentWrapper(object):
 
     def close(self):
         self.env.close()
+
+    def render(self):
+        self.env.render()

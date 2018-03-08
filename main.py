@@ -3,7 +3,7 @@ from game_runner import GameRunner
 
 testing = False
 
-def main(_):
+def main():
     with tf.Session() as session:
         game_runner = GameRunner(session)
 
@@ -14,4 +14,5 @@ def main(_):
 
      
 if __name__ == '__main__':
-    tf.app.run()
+    #tf.app.run()
+    main()

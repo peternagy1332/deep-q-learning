@@ -7,7 +7,7 @@ class Config(object):
         self.cropy = 84
         
         self.minibatch_size = 32
-        self.replay_memory_size = 1000000 # N
+        self.replay_memory_size = 1000 # N
         self.agent_history_length = 4 # Q network input
         self.target_network_update_frequency = 10000 # C
         self.discount_factor = 0.99
@@ -30,11 +30,9 @@ class Config(object):
         self.noop_max = 30
         
         # Arbitrary
-        self.episodes = 20 # M
+        self.episodes = 100000 # M
         self.time_steps = 200
         
         # Non-paper variables
         self.random_seed = 666
-        self.epochs = 5
-        self.snapshot_step = 1000
         self.model_path = os.path.join('Q')
