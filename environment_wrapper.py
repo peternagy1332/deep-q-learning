@@ -47,12 +47,16 @@ class EnvironmentWrapper(object):
 
         next_state = np.zeros((self.cfg.action_repeat, self.cfg.input_imgy, self.cfg.input_imgx))
         
-        next_state[:self.cfg.action_repeat-1] = self.state_buffer
-        next_state[self.cfg.action_repeat-1] = preprocessed_frame
+        next_state[:-1] = self.state_buffer
+        next_state[-1] = preprocessed_frame
 
-        self.state_buffer[:self.cfg.action_repeat-3] = self.state_buffer[:self.cfg.action_repeat-3]
-        self.state_buffer[self.cfg.action_repeat-2] = preprocessed_frame
- 
+        # if done:
+        #     for i in range(next_state.shape[0]):
+        #         imsave(str(i)+'.png', next_state[i])
+
+        self.state_buffer[:-1] = self.state_buffer[1:]
+        self.state_buffer[-1] = preprocessed_frame
+
         return next_state, reward, done
         
     def get_action(self, Q_values_for_actions):
@@ -65,7 +69,7 @@ class EnvironmentWrapper(object):
         
         # anneal epsilon
         if self.cfg.epsilon>self.cfg.final_exploration:
-            self.cfg.epsilon = (self.cfg.initial_exploration - self.cfg.final_exploration) / self.cfg.final_exploration_frame
+            self.cfg.epsilon -= (self.cfg.initial_exploration - self.cfg.final_exploration) / self.cfg.final_exploration_frame
         
         return action
 

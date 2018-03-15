@@ -10,6 +10,7 @@ from config import Config
 from environment_wrapper import EnvironmentWrapper
 from collections import namedtuple
 
+
 class GameRunner(object):
     def __init__(self, session):
         self.session = session
@@ -17,7 +18,7 @@ class GameRunner(object):
         self.cfg = Config()
         self.wrapped_env = EnvironmentWrapper(self.cfg)
         self.dqnutils = DQNUtils(self.cfg, self.wrapped_env)
-        self.Q_state, self.Q, self.Q_target_state, self.Q_target, self.clone_Q_to_Q_target, self.update, self.actions, self.rewards, self.dones = self.dqnutils.build_graph()
+        self.Q_state, self.Q, self.Q_target_state, self.Q_target, self.clone_Q_to_Q_target, self.update, self.action, self.reward, self.done = self.dqnutils.build_graph()
         session.run(tf.global_variables_initializer())
 
     def train(self):
@@ -32,28 +33,35 @@ class GameRunner(object):
         total_steps = 0
         train_steps = 0
         replay_memory_initialized = False
+        scores = []
 
-        for _ in range(self.cfg.episodes):
+        action_stat = {action_id:0 for action_id in range(self.wrapped_env.action_space_size)}
+
+        for episode in range(self.cfg.episodes):
+
             state = self.wrapped_env.get_initial_state()
 
-            rewards = []
+            score = 0
 
             for _ in range(self.cfg.time_steps):
                 Q_values_for_actions = self.Q.eval(session=self.session, feed_dict={self.Q_state:[state]})
+                print(Q_values_for_actions)
 
                 action = self.wrapped_env.get_action(Q_values_for_actions)
 
+                action_stat[action] += 1
+
                 next_state, reward, done = self.wrapped_env.step(action)
+
+                score+=reward
 
                 replay_memory.state[replay_memory_idx] = state
                 replay_memory.action[replay_memory_idx] = action
                 replay_memory.reward[replay_memory_idx] = reward
                 replay_memory.next_state[replay_memory_idx] = next_state
-                # logically the opposite, but for computational reasons I prefer this way
-                replay_memory.done[replay_memory_idx] = 0 if done else 1
+                replay_memory.done[replay_memory_idx] = done
 
                 state = next_state
-                rewards.append(reward)
 
                 if total_steps%self.cfg.target_network_update_frequency==0:
                     print("Cloning Q->Q_target")
@@ -69,33 +77,32 @@ class GameRunner(object):
                     self.session.run([self.update], feed_dict={
                         self.Q_state: replay_memory.state[batch_indexes],
                         self.Q_target_state: replay_memory.next_state[batch_indexes],
-                        self.actions: replay_memory.action[batch_indexes],
-                        self.rewards: replay_memory.reward[batch_indexes],
-                        self.dones: replay_memory.done[batch_indexes]
+                        self.action: replay_memory.action[batch_indexes],
+                        self.reward: replay_memory.reward[batch_indexes],
+                        self.done: replay_memory.done[batch_indexes]
                     })
 
-                if replay_memory_idx==self.cfg.replay_memory_size:
-                    replay_memory_idx=0
+                if replay_memory_idx==self.cfg.replay_memory_size-1:
+                    replay_memory_idx = 0
                     replay_memory_initialized = True
                 else:
-                    replay_memory_idx+=1
+                    replay_memory_idx += 1
 
-                total_steps+=1
-
-                if replay_memory_idx<self.cfg.minibatch_size and not replay_memory_initialized:
-                    print('Not enough data yet.')
-                else:
-                    print(f"Step {total_steps}")
-                    print(f"Train steps {train_steps}")
-                    print(f"Reward min: {min(rewards)}")
-                    print(f"Reward max: {max(rewards)}")
-                    print(f"Reward mean: {mean(rewards)}")
-                    print(f"Reward median: {median(rewards)}")
-                    print(f"Reward mode: {mode(rewards)}")
-                    print()
+                total_steps += 1
 
                 if done:
                     break
+            
+            scores.append(score)
+
+            print(f"Episode: {episode}")
+            print(f"Score mean: {round(mean(scores),4)}")
+            print(f"Score median: {median(scores)}")
+            print(f"Action stat: {action_stat}")
+            print(f"Train steps: {train_steps}")
+            print(f"Epsilon: {round(self.cfg.epsilon,4)}")
+            #print(f"Score mode: {mode(scores)}")
+            print()
 
         self.saver.save(self.session, self.cfg.model_path)
 
