@@ -1,17 +1,19 @@
 import random
 import numpy as np
-import gym
+import gym 
+from scipy.misc import imsave, imresize
+
 
 class EnvironmentWrapper(object):
     def __init__(self, cfg):
         self.cfg = cfg
         self.env = gym.make(self.cfg.game_id)
         self.action_space_size = self.env.action_space.n
-        self.state_buffer = np.zeros((self.cfg.action_repeat-1, self.cfg.cropy, self.cfg.cropx))
+        self.state_buffer = np.zeros((self.cfg.action_repeat-1, self.cfg.input_imgy, self.cfg.input_imgx))
     
     def get_initial_state(self):
         self.env.reset()
-        initial_state = np.zeros((self.cfg.action_repeat, self.cfg.cropy, self.cfg.cropx))
+        initial_state = np.zeros((self.cfg.action_repeat, self.cfg.input_imgy, self.cfg.input_imgx))
         self.state_buffer = initial_state[:self.cfg.action_repeat-1]
         return initial_state
 
@@ -20,14 +22,22 @@ class EnvironmentWrapper(object):
         frame.shape = (400, 600, 3)
         output.shape = (84, 84) # grayscale
         """
+        
+        # Grayscale
         r, g, b = frame[:,:,0], frame[:,:,1], frame[:,:,2]
         gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
 
+        # Crop
         h, w = gray.shape
         starty = h//2 - self.cfg.cropy//2
         startx = w//2 - self.cfg.cropx//2
 
-        return gray[starty:starty+self.cfg.cropy, startx:startx+self.cfg.cropx].astype(np.uint8)
+        cropped = gray[starty:starty+self.cfg.cropy, startx:startx+self.cfg.cropx]
+
+        # Resize
+        shrinked = imresize(cropped, (84,84), interp='bilinear', mode=None)
+
+        return shrinked
 
 
     def step(self, action):
@@ -35,7 +45,7 @@ class EnvironmentWrapper(object):
         
         preprocessed_frame = self.__preprocess_frame(self.env.render(mode='rgb_array'))        
 
-        next_state = np.zeros((self.cfg.action_repeat, self.cfg.cropy, self.cfg.cropx))
+        next_state = np.zeros((self.cfg.action_repeat, self.cfg.input_imgy, self.cfg.input_imgx))
         
         next_state[:self.cfg.action_repeat-1] = self.state_buffer
         next_state[self.cfg.action_repeat-1] = preprocessed_frame

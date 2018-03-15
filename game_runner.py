@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tflearn import conv_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
+from statistics import mean, median, mode
 from neural import DQNUtils
 from config import Config
 from environment_wrapper import EnvironmentWrapper
@@ -21,14 +22,15 @@ class GameRunner(object):
 
     def train(self):
         replay_memory = namedtuple("replay_memory", ["state", "action", "reward", "next_state", "done"]) # D
-        replay_memory.state = np.zeros((self.cfg.replay_memory_size, self.cfg.agent_history_length, self.cfg.cropy, self.cfg.cropx))
+        replay_memory.state = np.zeros((self.cfg.replay_memory_size, self.cfg.agent_history_length, self.cfg.input_imgy, self.cfg.input_imgx))
         replay_memory.action = np.zeros((self.cfg.replay_memory_size))
         replay_memory.reward = np.zeros((self.cfg.replay_memory_size))
-        replay_memory.next_state = np.zeros((self.cfg.replay_memory_size, self.cfg.agent_history_length, self.cfg.cropy, self.cfg.cropx))
+        replay_memory.next_state = np.zeros((self.cfg.replay_memory_size, self.cfg.agent_history_length, self.cfg.input_imgy, self.cfg.input_imgx))
         replay_memory.done = np.zeros((self.cfg.replay_memory_size))
         replay_memory_idx = 0
 
         total_steps = 0
+        train_steps = 0
         replay_memory_initialized = False
 
         for _ in range(self.cfg.episodes):
@@ -47,7 +49,8 @@ class GameRunner(object):
                 replay_memory.action[replay_memory_idx] = action
                 replay_memory.reward[replay_memory_idx] = reward
                 replay_memory.next_state[replay_memory_idx] = next_state
-                replay_memory.done[replay_memory_idx] = done
+                # logically the opposite, but for computational reasons I prefer this way
+                replay_memory.done[replay_memory_idx] = 0 if done else 1
 
                 state = next_state
                 rewards.append(reward)
@@ -55,14 +58,15 @@ class GameRunner(object):
                 if total_steps%self.cfg.target_network_update_frequency==0:
                     print("Cloning Q->Q_target")
                     self.session.run(self.clone_Q_to_Q_target)
-
+                
                 if (total_steps%self.cfg.update_frequency==0 or done) and not (replay_memory_idx<self.cfg.minibatch_size and not replay_memory_initialized):
                     if replay_memory_initialized:
                         batch_indexes = np.random.randint(self.cfg.replay_memory_size, size=self.cfg.minibatch_size)
                     else:
                         batch_indexes = np.random.randint(replay_memory_idx, size=self.cfg.minibatch_size)
-                    print("Train!")
-                    self.session.run(self.update, feed_dict={
+                    
+                    train_steps+=1
+                    self.session.run([self.update], feed_dict={
                         self.Q_state: replay_memory.state[batch_indexes],
                         self.Q_target_state: replay_memory.next_state[batch_indexes],
                         self.actions: replay_memory.action[batch_indexes],
@@ -70,13 +74,25 @@ class GameRunner(object):
                         self.dones: replay_memory.done[batch_indexes]
                     })
 
-                if replay_memory_idx%self.cfg.replay_memory_size==0:
+                if replay_memory_idx==self.cfg.replay_memory_size:
                     replay_memory_idx=0
                     replay_memory_initialized = True
                 else:
                     replay_memory_idx+=1
 
                 total_steps+=1
+
+                if replay_memory_idx<self.cfg.minibatch_size and not replay_memory_initialized:
+                    print('Not enough data yet.')
+                else:
+                    print(f"Step {total_steps}")
+                    print(f"Train steps {train_steps}")
+                    print(f"Reward min: {min(rewards)}")
+                    print(f"Reward max: {max(rewards)}")
+                    print(f"Reward mean: {mean(rewards)}")
+                    print(f"Reward median: {median(rewards)}")
+                    print(f"Reward mode: {mode(rewards)}")
+                    print()
 
                 if done:
                     break

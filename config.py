@@ -3,11 +3,13 @@ import os
 class Config(object):
     def __init__(self):
         self.game_id = 'CartPole-v0'
-        self.cropx = 84
-        self.cropy = 84
+        self.input_imgx=84
+        self.input_imgy=84
+        self.cropx = 250
+        self.cropy = 250
         
         self.minibatch_size = 32
-        self.replay_memory_size = 1000 # N
+        self.replay_memory_size = 10000 # N
         self.agent_history_length = 4 # Q network input
         self.target_network_update_frequency = 10000 # C
         self.discount_factor = 0.99

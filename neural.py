@@ -10,7 +10,7 @@ class DQNUtils(object):
         self.wrapped_env = wrapped_env
        
     def __spawn_network(self):
-        input_state_placeholder = tf.placeholder(tf.uint8, [None, self.cfg.agent_history_length, self.cfg.cropy, self.cfg.cropx])
+        input_state_placeholder = tf.placeholder(tf.uint8, [None, self.cfg.agent_history_length, self.cfg.input_imgy, self.cfg.input_imgx])
         input_state = tf.cast(input_state_placeholder, tf.float32)
         input_state = tf.transpose(input_state, [0,2,3,1])
         net = conv_2d(input_state, 32, 8, strides=4, activation='relu')
@@ -39,13 +39,11 @@ class DQNUtils(object):
         dones = tf.placeholder(tf.uint8, [None])
 
         # Preprocessing
-        dones2 = tf.cast(tf.bitwise.invert(dones), tf.float32)
+        dones2 = tf.cast(dones, tf.float32)
         rewards2 = tf.cast(tf.clip_by_value(tf.cast(rewards, tf.int32), -1, 1), tf.float32)
 
         # Q values
-        a = dones2*tf.to_float(self.cfg.discount_factor)
-        b = tf.reduce_max(Q_target, reduction_indices=1)
-        y = rewards2 + tf.multiply(a,b)
+        y = rewards2 + dones2*tf.to_float(self.cfg.discount_factor)*tf.reduce_max(Q_target, reduction_indices=1)
         
         action_q_values = tf.reduce_max(Q, reduction_indices=1)
 
