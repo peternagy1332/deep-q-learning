@@ -17,7 +17,7 @@ class Config(object):
         self.update_frequency = 4
         
         # RMSProp
-        self.learning_rate = 0.001
+        self.learning_rate = 0.0001
         self.gradient_momentum = 0.95
         self.squared_gradient_momentum = 0.95
         self.min_squared_gradient = 0.01
@@ -25,7 +25,7 @@ class Config(object):
         # epsilon-greedy
         self.initial_exploration = 1
         self.final_exploration = 0.1
-        self.final_exploration_frame = 100000
+        self.final_exploration_frame = 10000
         self.epsilon = self.initial_exploration
         
         self.replay_start_size = 50000

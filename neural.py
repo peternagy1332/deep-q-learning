@@ -17,7 +17,7 @@ class DQNUtils(object):
         net = conv_2d(net, 64, 4, strides=2, activation='relu')
         net = conv_2d(net, 64, 3, strides=1, activation='relu')
         net = fully_connected(net, 512, activation='relu')
-        Q_values_for_actions = fully_connected(net, self.wrapped_env.action_space_size, activation='softmax')
+        Q_values_for_actions = fully_connected(net, self.wrapped_env.action_space_size) # activation='softmax'
         return input_state_placeholder, Q_values_for_actions
 
     def build_graph(self):
@@ -51,12 +51,14 @@ class DQNUtils(object):
 
         b = tf.multiply(action_onehot, y[:,tf.newaxis]) + tf.one_hot(action, depth=self.wrapped_env.action_space_size, on_value=0.0, off_value=1.0)*Q_values_for_actions
 
+        #b = tf.one_hot(tf.ones((self.cfg.minibatch_size),dtype=tf.int32),depth=self.wrapped_env.action_space_size, dtype=tf.float32)
+
         cost = mean_square(Q_values_for_actions,b)
         # Loss optimization
         #cost = mean_square(action_q_values, y)
         #optimizer = tf.train.RMSPropOptimizer(learning_rate=self.cfg.learning_rate,momentum=self.cfg.gradient_momentum)
-        #optimizer = tf.train.AdamOptimizer(learning_rate=self.cfg.learning_rate)
-        optimizer = tf.train.MomentumOptimizer(learning_rate=self.cfg.learning_rate, momentum=0.5)
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.cfg.learning_rate)
+        #optimizer = tf.train.MomentumOptimizer(learning_rate=self.cfg.learning_rate, momentum=0.5)
 
         # The update step operation
         update = optimizer.minimize(cost, var_list=Q_network_params)

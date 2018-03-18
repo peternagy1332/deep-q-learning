@@ -49,7 +49,7 @@ class GameRunner(object):
 
             for _ in range(self.cfg.time_steps):
                 Q_values_for_actions = self.operations["Q"].eval(session=self.session, feed_dict={self.operations["Q_state"]:[state]})
-                #print(np.round(Q_values_for_actions,4))
+                print(np.round(Q_values_for_actions,2))
 
                 action = self.wrapped_env.get_action(Q_values_for_actions)
 
