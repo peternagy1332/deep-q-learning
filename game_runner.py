@@ -18,7 +18,9 @@ class GameRunner(object):
         self.cfg = Config()
         self.wrapped_env = EnvironmentWrapper(self.cfg)
         self.dqnutils = DQNUtils(self.cfg, self.wrapped_env)
-        self.Q_state, self.Q, self.Q_target_state, self.Q_target, self.clone_Q_to_Q_target, self.update, self.action, self.reward, self.done = self.dqnutils.build_graph()
+        
+        self.operations = self.dqnutils.build_graph()
+        
         session.run(tf.global_variables_initializer())
 
     def train(self):
@@ -37,6 +39,8 @@ class GameRunner(object):
 
         action_stat = {action_id:0 for action_id in range(self.wrapped_env.action_space_size)}
 
+        self.session.run(self.operations["clone_Q_to_Q_target"])
+
         for episode in range(self.cfg.episodes):
 
             state = self.wrapped_env.get_initial_state()
@@ -44,8 +48,8 @@ class GameRunner(object):
             score = 0
 
             for _ in range(self.cfg.time_steps):
-                Q_values_for_actions = self.Q.eval(session=self.session, feed_dict={self.Q_state:[state]})
-                print(Q_values_for_actions)
+                Q_values_for_actions = self.operations["Q"].eval(session=self.session, feed_dict={self.operations["Q_state"]:[state]})
+                #print(np.round(Q_values_for_actions,4))
 
                 action = self.wrapped_env.get_action(Q_values_for_actions)
 
@@ -65,7 +69,7 @@ class GameRunner(object):
 
                 if total_steps%self.cfg.target_network_update_frequency==0:
                     print("Cloning Q->Q_target")
-                    self.session.run(self.clone_Q_to_Q_target)
+                    self.session.run(self.operations["clone_Q_to_Q_target"])
                 
                 if (total_steps%self.cfg.update_frequency==0 or done) and not (replay_memory_idx<self.cfg.minibatch_size and not replay_memory_initialized):
                     if replay_memory_initialized:
@@ -74,13 +78,30 @@ class GameRunner(object):
                         batch_indexes = np.random.randint(replay_memory_idx, size=self.cfg.minibatch_size)
                     
                     train_steps+=1
-                    self.session.run([self.update], feed_dict={
-                        self.Q_state: replay_memory.state[batch_indexes],
-                        self.Q_target_state: replay_memory.next_state[batch_indexes],
-                        self.action: replay_memory.action[batch_indexes],
-                        self.reward: replay_memory.reward[batch_indexes],
-                        self.done: replay_memory.done[batch_indexes]
+                    _, Q, action, y, b, cost = self.session.run(
+                        [
+                            self.operations["update"],
+                            self.operations["Q"],
+                            self.operations["action"],
+                            self.operations["y"],
+                            self.operations["b"],
+                            self.operations["cost"]
+                        ], feed_dict={
+                        self.operations["Q_state"]: replay_memory.state[batch_indexes],
+                        self.operations["Q_target_state"]: replay_memory.next_state[batch_indexes],
+                        self.operations["action"]: replay_memory.action[batch_indexes],
+                        self.operations["reward"]: replay_memory.reward[batch_indexes],
+                        self.operations["done"]: replay_memory.done[batch_indexes]
                     })
+
+                    # print("Q")
+                    # print(np.round(Q,4))
+                    # print("action")
+                    # print(action)
+                    # print("y")
+                    # print(np.round(y, 4))
+                    # print("b")
+                    # print(np.round(b, 4))
 
                 if replay_memory_idx==self.cfg.replay_memory_size-1:
                     replay_memory_idx = 0
@@ -115,7 +136,7 @@ class GameRunner(object):
             state = self.wrapped_env.get_initial_state()
             while not done:
                 self.wrapped_env.render()
-                Q_values_for_actions = self.Q.eval(session=self.session, feed_dict={self.Q_state: [state]})
+                Q_values_for_actions = self.operations["Q"].eval(session=self.session, feed_dict={self.operations["Q_state"]: [state]})
                 action = np.argmax(Q_values_for_actions)
                 state, reward, done = self.wrapped_env.step(action)
                 rewards.append(reward)
