@@ -1,9 +1,10 @@
 import tensorflow as tf
 from game_runner import GameRunner
 
-testing = False
 
 def main():
+    testing = False
+
     with tf.Session() as session:
         game_runner = GameRunner(session)
 
@@ -12,7 +13,6 @@ def main():
         else:
             game_runner.train()
 
-     
+
 if __name__ == '__main__':
-    #tf.app.run()
     main()
