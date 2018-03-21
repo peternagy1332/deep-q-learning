@@ -9,15 +9,17 @@ from replay_memory import ReplayMemory
 
 class GameRunner(object):
     """Coordinates the training and evaluation of each network."""
-    def __init__(self, session):
+    def __init__(self, session, model):
         self.session = session
-        self.saver = tf.train.Saver(max_to_keep=5)
+        self.saver = tf.train.Saver()
+        self.model = model
         self.cfg = Config()
         self.wrapped_env = EnvironmentWrapper(self.cfg)
         self.dqnutils = DQNUtils(self.cfg, self.wrapped_env)
 
         self.operations = self.dqnutils.build_graph()
 
+    def initialize_model(self):
         session.run(tf.global_variables_initializer())
 
     def train(self):
