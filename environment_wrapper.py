@@ -55,7 +55,7 @@ class EnvironmentWrapper(object):
         # Sampling and visualizing network input
         # if done:
         #     for i in range(next_state.shape[0]):
-        #         imsave('assets/'+str(i)+'.png', next_state[i])
+        #         imsave('assets/net-input-'+str(i)+'.png', next_state[i])
 
         # Pushing the freshly preprocessed frame into the FIFO-like buffer."
         self.state_buffer[:-1] = self.state_buffer[1:]
