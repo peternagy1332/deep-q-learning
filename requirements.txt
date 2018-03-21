@@ -12,6 +12,7 @@ gast==0.2.0
 grpcio==1.10.0
 -e git+https://github.com/openai/gym.git@6160181213b91e381d37183203b04dd84e6de0b8#egg=gym
 html5lib==0.9999999
+h5py==2.7.1
 idna==2.6
 isort==4.3.4
 kiwisolver==1.0.1
