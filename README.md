@@ -6,6 +6,8 @@ The implementation is based on:
 ![Summary](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/summary.png?raw=true "Character-level training visualization")
 
 ## Getting started
+Since OpenAI Gym runs only on Linux distributions, this project is not compatible with Windows. Despite this, if you modify the environment wrapper, it could run on Windows machines too.
+
 1. Install Python 3.6.4
 1. Run the following command sequence:
 
