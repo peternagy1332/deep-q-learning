@@ -2,6 +2,7 @@
 
 The implementation is based on:
   - [Human-level control through deep reinforcement learning](https://www.nature.com/nature/journal/v518/n7540/full/nature14236.htm)
+  - [CartPole problem](https://gym.openai.com/envs/CartPole-v0/)
 
 ![Summary](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/summary.png?raw=true "Character-level training visualization")
 
