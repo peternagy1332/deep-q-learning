@@ -4,7 +4,7 @@ The implementation is based on:
   - [Human-level control through deep reinforcement learning](https://www.nature.com/nature/journal/v518/n7540/full/nature14236.htm)
   - [CartPole problem](https://gym.openai.com/envs/CartPole-v0/)
 
-During training, the cart learns how to balance the inverse pendulum with no initial training data.
+During training, the cart learns how to balance the inverted pendulum with no initial training data.
 ![Summary](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/summary.png?raw=true "Character-level training visualization")
 
 ## Getting started
