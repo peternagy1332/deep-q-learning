@@ -1,37 +1,59 @@
 import os
+import yaml
+import datetime
+import time
+import pickle
 
 
 class Config(object):
-    def __init__(self):
-        self.game_id = 'CartPole-v0'
-        self.input_imgx = 84
-        self.input_imgy = 84
-        self.cropx = 250
-        self.cropy = 250
+    def __init__(self, default_config, model_dir):
 
-        self.minibatch_size = 32
-        self.replay_memory_size = 10000  # N
-        self.agent_history_length = 4  # Q network input
-        self.target_network_update_frequency = 10000  # C
-        self.discount_factor = 0.99
-        self.update_frequency = 4
+        self.model_dir = self.generate_model_name() if model_dir is None else model_dir
+        self.scores_file = os.path.join(self.model_dir, "scores.pickle")
+        
+        if not os.path.exists(self.model_dir):
+            os.makedirs(self.model_dir)
 
-        # Neural network parameters
-        self.learning_rate = 0.0001
+        self.model_config = os.path.join(self.model_dir, "config.yaml")
+        self.keys = set()
 
-        # epsilon-greedy
-        self.initial_exploration = 1
-        self.final_exploration = 0.1
-        self.final_exploration_frame = 10000
-        self.epsilon = self.initial_exploration
+        # If it is a new model, or the config file is deleted
+        if not os.path.exists(self.model_config):
+            with open(default_config, "r", encoding="utf8") as default_config_file:
+                default_config = yaml.safe_load(default_config_file)
+
+                for key in default_config:
+                    self.keys.add(key)
+                    setattr(self, key, default_config[key])
+
+            with open(self.model_config, "w", encoding="utf8") as config_file:
+                yaml.dump(default_config, config_file, default_flow_style=False)
+        else:
+            # Load the existing configuration
+            with open(self.model_config, "r", encoding="utf8") as config_file:
+                config = yaml.safe_load(config_file)
+                for key in config:
+                    self.keys.add(key)
+                    setattr(self, key, config[key])
+    
         self.epsilon_annealer = (self.initial_exploration - self.final_exploration) / self.final_exploration_frame
 
-        self.replay_start_size = 50000
+    def save(self, scores):
+        """Overwriting existing config file with the current values."""
+        with open(self.model_config, "w", encoding="utf8") as config_file:
+            current_config = {key: getattr(self, key) for key in self.keys}
+            yaml.dump(current_config, config_file, default_flow_style=False)
+        
+        with open(self.scores_file, "wb") as f_scores:
+            pickle.dump(scores, f_scores, pickle.HIGHEST_PROTOCOL)
 
-        # Arbitrary
-        self.episodes = 100000  # M
-        self.time_steps = 200
+    def generate_model_name(self):
+        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d--%H-%M-%S')
+        return os.path.join("models", f"model--{st}")
 
-        # Non-paper variables
-        self.random_seed = 1332
-        self.model_path = os.path.join('Q')
+    def get_scores_list(self):
+        if os.path.exists(self.scores_file):
+            with open(self.scores_file, "rb") as f_scores:
+                return pickle.load(f_scores)
+        else:
+            return []

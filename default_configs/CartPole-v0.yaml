@@ -1,0 +1,34 @@
+game_id: 'CartPole-v0'
+input_imgx: 84
+input_imgy: 84
+cropx: 250
+cropy: 250
+
+minibatch_size: 32
+replay_memory_size: 10000  # N
+agent_history_length: 4  # Q network input
+target_network_update_frequency: 10000  # C
+discount_factor: 0.99
+update_frequency: 4
+
+# Neural network parameters
+learning_rate: 0.0001
+
+# epsilon-greedy
+initial_exploration: 1
+epsilon: 1
+final_exploration: 0.1
+final_exploration_frame: 10000
+
+replay_start_size: 50000
+
+# Arbitrary
+episodes: 100000  # M
+time_steps: 200
+
+# Non-paper variables
+random_seed: 1332
+episode_counter: 0
+total_steps_counter: 0
+train_steps_counter: 0
+action_stat: {0: 0, 1: 0}

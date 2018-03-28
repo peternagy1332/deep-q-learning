@@ -1,6 +1,4 @@
 import tensorflow as tf
-import datetime
-import time
 import os
 from tflearn import conv_2d, mean_square
 from tflearn.layers.core import fully_connected
@@ -11,10 +9,6 @@ class DQNUtils(object):
     def __init__(self, cfg, wrapped_env):
         self.cfg = cfg
         self.wrapped_env = wrapped_env
-
-    def generate_model_name(self):
-        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d--%H:%M:%S')
-        return os.path.join("models", f"model--{st}", "q-model")
 
     def __spawn_network(self):
         input_state_placeholder = tf.placeholder(tf.uint8, [None, self.cfg.agent_history_length, self.cfg.input_imgy, self.cfg.input_imgx])
