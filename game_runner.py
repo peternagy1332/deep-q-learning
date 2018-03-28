@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
 import os
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from statistics import mean, median
 from neural import DQNUtils
@@ -31,18 +33,18 @@ class GameRunner(object):
         self.session.run(tf.global_variables_initializer())
 
         if os.path.exists(os.path.join(self.cfg.model_dir,"q-model.meta")):
-            print(f"Loading existing model from: {self.cfg.model_dir}")
+            print("Loading existing model from: ",self.cfg.model_dir)
 
             latest_checkpoint = tf.train.latest_checkpoint(self.cfg.model_dir)
             self.saver.restore(self.session, latest_checkpoint)
         else:
-            print(f"Model not found: {self.cfg.model_dir}. Creating new model with given name.")
+            print("Model not found: ",self.cfg.model_dir,". Creating new model with given name.")
 
 
     def train(self):
         """Trains the Q network using the replay memory and the frozen Q
         target network. Afterwards it saves the Q model."""
-        print(f"Starting training of model: {self.cfg.model_dir}")
+        print("Starting training of model: ",self.cfg.model_dir)
 
         replay_memory = ReplayMemory(self.cfg)
 
@@ -101,14 +103,14 @@ class GameRunner(object):
 
                 scores.append(score)
 
-                print(f"Episode: {self.cfg.episode_counter}")
-                print(f"\tScore mean: {round(mean(scores),2)}")
-                print(f"\tScore median: {median(scores)}")
-                print(f"\tScore mode: {max(set(scores), key=scores.count)}")
-                print(f"\tAction stat: {self.cfg.action_stat}")
-                print(f"\tTotal steps: {self.cfg.total_steps_counter}")
-                print(f"\tTrain steps: {self.cfg.train_steps_counter}")
-                print(f"\tEpsilon: {round(self.cfg.epsilon,2)}")
+                print("Episode: ",self.cfg.episode_counter)
+                print("\tScore mean: ",round(mean(scores),2))
+                print("\tScore median: ",median(scores))
+                print("\tScore mode: ",max(set(scores), key=scores.count))
+                print("\tAction stat: ",self.cfg.action_stat)
+                print("\tTotal steps: ",self.cfg.total_steps_counter)
+                print("\tTrain steps: ",self.cfg.train_steps_counter)
+                print("\tEpsilon: ",round(self.cfg.epsilon,2))
                 print()
 
                 # Evaluating
@@ -116,7 +118,7 @@ class GameRunner(object):
                     self.evaluation(self.cfg.episode_counter)
                 
         except KeyboardInterrupt:
-            print(f"Saving model to {self.cfg.model_dir}")
+            print("Saving model to ",self.cfg.model_dir)
 
             self.saver.save(self.session, os.path.join(self.cfg.model_dir, 'q-model'))
 
@@ -129,7 +131,7 @@ class GameRunner(object):
     def evaluation(self, train_episode_counter):
         """Evaluates a given Q model in a game environment."""
 
-        print(f"Starting evaluation of model: {self.cfg.model_dir}")
+        print("Starting evaluation of model: ",self.cfg.model_dir)
 
         eval_episodes = 100
         scores = []
@@ -162,6 +164,13 @@ class GameRunner(object):
 
     def draw_stat(self):
         fig = plt.figure()
-        plt.plot(self.eval_stat.keys(), self.eval_stat.values(), ".")
-        fig.savefig(os.path.join(self.model_dir, "eval"))
+        x = []
+        y = []
+        for episode, scores in self.eval_stat.items():
+                x+=[episode]*len(scores)
+                y.extend(scores)
+        plt.plot(x, y, ".")
+        plt.xlabel("Train episodes")
+        plt.ylabel("Evaluation scores")
+        fig.savefig(os.path.join(self.cfg.model_dir, "eval"))
         plt.close(fig)

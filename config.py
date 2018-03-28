@@ -49,7 +49,7 @@ class Config(object):
 
     def generate_model_name(self):
         st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d--%H-%M-%S')
-        return os.path.join("models", f"model--{st}")
+        return os.path.join("models", "model--"+st)
 
     def get_scores_list(self):
         if os.path.exists(self.scores_file):
