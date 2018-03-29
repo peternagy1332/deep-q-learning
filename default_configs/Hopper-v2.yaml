@@ -1,3 +1,5 @@
+# requirements.txt: -e git+https://github.com/adamtiger/gym.git#egg=gym[mujoco]
+# Follow steps: https://github.com/openai/mujoco-py#install-mujoco
 game_id: 'Hopper-v2'
 input_imgx: 84
 input_imgy: 84

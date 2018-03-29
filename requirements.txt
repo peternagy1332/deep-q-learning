@@ -10,7 +10,7 @@ docopt==0.6.2
 future==0.16.0
 gast==0.2.0
 grpcio==1.10.0
--e git+https://github.com/adamtiger/gym.git#egg=gym[mujoco]
+-e git+https://github.com/adamtiger/gym.git#egg=gym
 h5py==2.7.1
 html5lib==0.9999999
 idna==2.6
@@ -38,9 +38,9 @@ scipy==1.0.0
 six==1.11.0
 tensorboard==1.6.0
 tensorflow==1.6.0
-termcolor==1.1.0
 tflearn==0.3.2
 urllib3==1.22
 Werkzeug==0.14.1
 wrapt==1.10.11
 yarg==0.1.9
+pyopengl==3.1.0

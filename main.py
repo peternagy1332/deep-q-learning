@@ -28,7 +28,7 @@ def main():
         '-d',
         '--default-config',
         required=False,
-        default=os.path.join('default_configs', 'Hopper-v2.yaml'),
+        default=os.path.join('default_configs', 'CartPoleRawImg-v0.yaml'),
         help='The default config to use when creating a new model.'
     )
 
