@@ -42,7 +42,11 @@ class EnvironmentWrapper(object):
 
     def step(self, action):
         """Take an action, then preprocess the rendered frame."""
-        _, reward, done, _ = self.env.step(action)
+        repeat = self.cfg.action_repeat
+        done = False
+        while not done and repeat > 0:
+            _, reward, done, _ = self.env.step(action)
+            repeat-=1
 
         preprocessed_frame = self.__preprocess_frame(self.env.render(mode='rgb_array'))
 

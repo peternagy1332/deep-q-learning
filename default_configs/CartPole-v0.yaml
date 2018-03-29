@@ -10,6 +10,7 @@ agent_history_length: 4  # Q network input
 target_network_update_frequency: 10000  # C
 discount_factor: 0.99
 update_frequency: 4
+action_repeat: 4
 
 # Neural network parameters
 learning_rate: 0.0001
@@ -20,7 +21,7 @@ epsilon: 1
 final_exploration: 0.1
 final_exploration_frame: 10000
 
-replay_start_size: 50000
+replay_start_size: 1000
 
 # Arbitrary
 episodes: 100000  # M

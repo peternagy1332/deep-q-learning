@@ -10,6 +10,7 @@ class Config(object):
 
         self.model_dir = self.generate_model_name() if model_dir is None else model_dir
         self.scores_file = os.path.join(self.model_dir, "scores.pickle")
+        self.eval_stats_file = os.path.join(self.model_dir, "eval_stats.pickle")
         
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
@@ -38,7 +39,7 @@ class Config(object):
     
         self.epsilon_annealer = (self.initial_exploration - self.final_exploration) / self.final_exploration_frame
 
-    def save(self, scores):
+    def save(self, scores, eval_stats):
         """Overwriting existing config file with the current values."""
         with open(self.model_config, "w", encoding="utf8") as config_file:
             current_config = {key: getattr(self, key) for key in self.keys}
@@ -46,6 +47,9 @@ class Config(object):
         
         with open(self.scores_file, "wb") as f_scores:
             pickle.dump(scores, f_scores, pickle.HIGHEST_PROTOCOL)
+
+        with open(self.eval_stats_file, "wb") as f_eval_stats:
+            pickle.dump(eval_stats, f_eval_stats, pickle.HIGHEST_PROTOCOL)
 
     def generate_model_name(self):
         st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d--%H-%M-%S')
@@ -57,3 +61,10 @@ class Config(object):
                 return pickle.load(f_scores)
         else:
             return []
+
+    def get_eval_stats(self):
+        if os.path.exists(self.eval_stats_file):
+            with open(self.eval_stats_file, "rb") as f_eval_stats:
+                return pickle.load(f_eval_stats)
+        else:
+            return {}

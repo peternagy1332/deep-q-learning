@@ -72,7 +72,3 @@ class DQNUtils(object):
             "action_q_values": action_q_values
         }
 
-    def clone_Q_to_Q_target(self, session, clone_Q_to_Q_target):
-        """Another, frozen Q network (Q target) increases training efficiency."""
-        print("Cloning Q weights to Q target network.")
-        session.run(clone_Q_to_Q_target)

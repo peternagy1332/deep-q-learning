@@ -25,7 +25,7 @@ class GameRunner(object):
         self.operations = self.dqnutils.build_graph()
 
         # Train episode id <-> scores list
-        self.eval_stat = {}
+        self.eval_stats = self.cfg.get_eval_stats()
 
         self.initialize_model()
 
@@ -76,11 +76,12 @@ class GameRunner(object):
 
                     # Clone Q network weights every self.cfg.target_network_update_frequency step.
                     if self.cfg.total_steps_counter % self.cfg.target_network_update_frequency == 0:
-                        self.dqnutils.clone_Q_to_Q_target(self.session, self.operations["clone_Q_to_Q_target"])
+                        for _ in range(0,1000):
+                            print("Cloning Q to Q target")
+                        self.session.run(self.operations["clone_Q_to_Q_target"])
 
                     # Escalate a gradient update step on Q network every self.cfg.update_frequency step (if we have enough data).
-                    if (self.cfg.total_steps_counter % self.cfg.update_frequency == 0 or done) and \
-                            not replay_memory.not_enough_data_for_one_minibatch():
+                    if (self.cfg.total_steps_counter % self.cfg.update_frequency == 0 or done) and self.cfg.total_steps_counter >= self.cfg.replay_start_size:
 
                         replay_memory_sample = replay_memory.sample()
 
@@ -114,17 +115,17 @@ class GameRunner(object):
                 print()
 
                 # Evaluating
-                if self.cfg.episode_counter % 10 == 0:
-                    self.evaluation(self.cfg.episode_counter)
+                #if self.cfg.episode_counter % 20 == 0:
+                    #self.evaluation(self.cfg.episode_counter)
                 
         except KeyboardInterrupt:
             print("Saving model to ",self.cfg.model_dir)
 
             self.saver.save(self.session, os.path.join(self.cfg.model_dir, 'q-model'))
 
-            self.cfg.save(scores)
+            self.cfg.save(scores, self.eval_stats)
 
-            self.draw_stat()
+            #self.evaluation(self.cfg.episode_counter)
 
             self.wrapped_env.close()
 
@@ -133,7 +134,7 @@ class GameRunner(object):
 
         print("Starting evaluation of model: ",self.cfg.model_dir)
 
-        eval_episodes = 100
+        eval_episodes = 50
         scores = []
         for episode in range(eval_episodes):
             done = False
@@ -157,7 +158,7 @@ class GameRunner(object):
 
             scores.append(score)
 
-        self.eval_stat.setdefault(train_episode_counter, scores)
+        self.eval_stats.setdefault(train_episode_counter, scores)
 
         self.draw_stat()
 
@@ -166,7 +167,7 @@ class GameRunner(object):
         fig = plt.figure()
         x = []
         y = []
-        for episode, scores in self.eval_stat.items():
+        for episode, scores in self.eval_stats.items():
                 x+=[episode]*len(scores)
                 y.extend(scores)
         plt.plot(x, y, ".")
