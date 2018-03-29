@@ -10,7 +10,7 @@ docopt==0.6.2
 future==0.16.0
 gast==0.2.0
 grpcio==1.10.0
--e git+https://github.com/adamtiger/gym.git@9bee2e24c5be77ffbb8c0f7811c69b161ef37f59#egg=gym
+-e git+https://github.com/adamtiger/gym.git#egg=gym[mujoco]
 h5py==2.7.1
 html5lib==0.9999999
 idna==2.6

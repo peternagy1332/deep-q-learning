@@ -21,7 +21,7 @@ class EnvironmentWrapper(object):
 
     def __preprocess_frame(self, frame):
         """
-        frame.shape = (400, 600, 3) -> output.shape = (84, 84) # grayscale
+        frame.shape = (x, y, chanels) -> output.shape = (input_imgy, input_imgx) # grayscale
         """
 
         # Grayscale using luminance
@@ -42,13 +42,17 @@ class EnvironmentWrapper(object):
 
     def step(self, action):
         """Take an action, then preprocess the rendered frame."""
-        repeat = self.cfg.action_repeat
-        done = False
-        while not done and repeat > 0:
+        if self.cfg.action_repeat is not None:
+            repeat = self.cfg.action_repeat
+            done = False
+            while not done and repeat > 0:
+                _, reward, done, _ = self.env.step(action)
+                repeat -= 1
+        else:
             _, reward, done, _ = self.env.step(action)
-            repeat-=1
 
-        preprocessed_frame = self.__preprocess_frame(self.env.render(mode='rgb_array'))
+        original_frame = self.env.render(mode='rgb_array')
+        preprocessed_frame = self.__preprocess_frame(original_frame)
 
         next_state = np.zeros((self.cfg.agent_history_length, self.cfg.input_imgy, self.cfg.input_imgx))
 
@@ -58,10 +62,11 @@ class EnvironmentWrapper(object):
 
         # Sampling and visualizing network input
         # if done:
+        #     imsave('assets/'+self.cfg.game_id+'/original.png', original_frame)
         #     for i in range(next_state.shape[0]):
-        #         imsave('assets/net-input-'+str(i)+'.png', next_state[i])
+        #         imsave('assets/'+self.cfg.game_id+'/net-input-'+str(i)+'.png', next_state[i])
 
-        # Pushing the freshly preprocessed frame into the FIFO-like buffer."
+        # Pushing the freshly preprocessed frame into the FIFO-like buffer.
         self.state_buffer[:-1] = self.state_buffer[1:]
         self.state_buffer[-1] = preprocessed_frame
 

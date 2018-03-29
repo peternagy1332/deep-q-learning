@@ -1,6 +1,7 @@
 from collections import namedtuple
 import numpy as np
 
+
 class ReplayMemory(object):
     def __init__(self, cfg):
         """Initialization of "the mammalian" replay memory."""

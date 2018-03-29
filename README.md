@@ -5,7 +5,7 @@ The implementation is based on:
   - [CartPole problem](https://gym.openai.com/envs/CartPole-v0/)
 
 During training the cart learns how to balance the inverted pendulum using only visual data and no initial training dataset.
-![Summary](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/summary.png?raw=true "Character-level training visualization")
+![Summary](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/summary.png?raw=true)
 
 ## Getting started
 Since OpenAI Gym runs only on Linux distributions, this project is not compatible with Windows. Despite this, if you modify the environment wrapper, it could run on Windows machines too.
@@ -21,3 +21,22 @@ cd deep-q-learning
 pip install -r requirements.txt
 python main.py
 ```
+## Used game environments
+
+### CartPoleRawImg-v0
+A modified CartPole-v0 implementation that returns frames headlessly: https://github.com/adamtiger/gym.git
+
+[CartPoleRawImg-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/CartPoleRawImg-v0/original.png?raw=true)
+
+### CartPole-v0
+The original OpenAI Gym CartPole-v0 game environment.
+
+[CartPoleRawImg-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/CartPoleRawImg-v0/original.png?raw=true)
+
+### Hopper-v2
+
+[Hopper-v2](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/Hopper-v2/original.png?raw=true)
+
+### MountainCar-v0
+
+[MountainCar-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/MountainCar-v0/original.png?raw=true)

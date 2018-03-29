@@ -32,13 +32,13 @@ class GameRunner(object):
     def initialize_model(self):
         self.session.run(tf.global_variables_initializer())
 
-        if os.path.exists(os.path.join(self.cfg.model_dir,"q-model.meta")):
-            print("Loading existing model from: ",self.cfg.model_dir)
+        if os.path.exists(os.path.join(self.cfg.model_dir, "q-model.meta")):
+            print("Loading existing model from: ", self.cfg.model_dir)
 
             latest_checkpoint = tf.train.latest_checkpoint(self.cfg.model_dir)
             self.saver.restore(self.session, latest_checkpoint)
         else:
-            print("Model not found: ",self.cfg.model_dir,". Creating new model with given name.")
+            print("Model not found: ", self.cfg.model_dir, ". Creating new model with given name.")
 
 
     def train(self):
@@ -76,8 +76,6 @@ class GameRunner(object):
 
                     # Clone Q network weights every self.cfg.target_network_update_frequency step.
                     if self.cfg.total_steps_counter % self.cfg.target_network_update_frequency == 0:
-                        for _ in range(0,1000):
-                            print("Cloning Q to Q target")
                         self.session.run(self.operations["clone_Q_to_Q_target"])
 
                     # Escalate a gradient update step on Q network every self.cfg.update_frequency step (if we have enough data).
@@ -104,44 +102,43 @@ class GameRunner(object):
 
                 scores.append(score)
 
-                print("Episode: ",self.cfg.episode_counter)
-                print("\tScore mean: ",round(mean(scores),2))
-                print("\tScore median: ",median(scores))
-                print("\tScore mode: ",max(set(scores), key=scores.count))
-                print("\tAction stat: ",self.cfg.action_stat)
-                print("\tTotal steps: ",self.cfg.total_steps_counter)
-                print("\tTrain steps: ",self.cfg.train_steps_counter)
-                print("\tEpsilon: ",round(self.cfg.epsilon,2))
+                print("Episode: ", self.cfg.episode_counter)
+                print("\tScore mean: ", round(mean(scores),2))
+                print("\tScore median: ", median(scores))
+                print("\tScore mode: ", max(set(scores), key=scores.count))
+                print("\tAction stat: ", self.cfg.action_stat)
+                print("\tTotal steps: ", self.cfg.total_steps_counter)
+                print("\tTrain steps: ", self.cfg.train_steps_counter)
+                print("\tEpsilon: ", round(self.cfg.epsilon, 2))
                 print()
 
                 # Evaluating
-                #if self.cfg.episode_counter % 20 == 0:
-                    #self.evaluation(self.cfg.episode_counter)
+                if (self.cfg.episode_counter+1) % 50 == 0:
+                    self.evaluation(self.cfg.episode_counter)
                 
         except KeyboardInterrupt:
-            print("Saving model to ",self.cfg.model_dir)
+            print("Saving model to ", self.cfg.model_dir)
 
-            self.saver.save(self.session, os.path.join(self.cfg.model_dir, 'q-model'))
+            self.saver.save(self.session, os.path.join(self.cfg.model_dir, "q-model"))
 
             self.cfg.save(scores, self.eval_stats)
 
-            #self.evaluation(self.cfg.episode_counter)
+            self.evaluation(self.cfg.episode_counter)
 
             self.wrapped_env.close()
 
     def evaluation(self, train_episode_counter):
         """Evaluates a given Q model in a game environment."""
 
-        print("Starting evaluation of model: ",self.cfg.model_dir)
+        print("Starting evaluation of model: ", self.cfg.model_dir)
 
-        eval_episodes = 50
         scores = []
-        for episode in range(eval_episodes):
+        for episode in range(self.cfg.eval_episodes):
             done = False
             score = 0
             state = self.wrapped_env.get_initial_state()
             step = 0
-            while not done and step<self.cfg.time_steps:
+            while not done and step < self.cfg.time_steps:
 
                 Q_values_for_actions = self.operations["Q"].eval(
                     session=self.session,
@@ -153,22 +150,19 @@ class GameRunner(object):
                 action = np.argmax(Q_values_for_actions)
                 state, reward, done = self.wrapped_env.step(action)
 
-                score+=reward
-                step+=1
+                score += reward
+                step += 1
 
             scores.append(score)
 
         self.eval_stats.setdefault(train_episode_counter, scores)
 
-        self.draw_stat()
-
-
-    def draw_stat(self):
+        # Draw stat
         fig = plt.figure()
         x = []
         y = []
         for episode, scores in self.eval_stats.items():
-                x+=[episode]*len(scores)
+                x += [episode]*len(scores)
                 y.extend(scores)
         plt.plot(x, y, ".")
         plt.xlabel("Train episodes")

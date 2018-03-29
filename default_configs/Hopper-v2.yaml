@@ -1,4 +1,4 @@
-game_id: 'CartPole-v0'
+game_id: 'Hopper-v2'
 input_imgx: 84
 input_imgy: 84
 cropx: 250

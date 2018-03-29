@@ -1,8 +1,8 @@
-game_id: 'CartPole-v0'
+game_id: 'CartPoleRawImg-v0'
 input_imgx: 84
 input_imgy: 84
-cropx: 250
-cropy: 250
+cropx: 160
+cropy: 160
 
 minibatch_size: 32
 replay_memory_size: 10000  # N
