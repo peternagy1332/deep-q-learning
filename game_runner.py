@@ -40,11 +40,10 @@ class GameRunner(object):
         else:
             print("Model not found: ", self.cfg.model_dir, ". Creating new model with given name.")
 
-
     def train(self):
         """Trains the Q network using the replay memory and the frozen Q
         target network. Afterwards it saves the Q model."""
-        print("Starting training of model: ",self.cfg.model_dir)
+        print("Starting training of model: ", self.cfg.model_dir)
 
         replay_memory = ReplayMemory(self.cfg)
 
@@ -55,6 +54,7 @@ class GameRunner(object):
             for self.cfg.episode_counter in range(self.cfg.episode_counter, self.cfg.episodes):
 
                 state = self.wrapped_env.get_initial_state()
+                self.cfg.set_action_stat(self.wrapped_env.action_space_size)
 
                 score = 0
 

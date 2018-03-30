@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import gym
+import os
 from scipy.misc import imsave, imresize
 
 
@@ -29,14 +30,18 @@ class EnvironmentWrapper(object):
         gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
 
         # Centered cropping
-        h, w = gray.shape
-        starty = h//2 - self.cfg.cropy//2
-        startx = w//2 - self.cfg.cropx//2
+        if self.cfg.cropy is not None and self.cfg.cropx is not None:
+            h, w = gray.shape
+            starty = h//2 - self.cfg.cropy//2
+            startx = w//2 - self.cfg.cropx//2
 
-        cropped = gray[starty:starty+self.cfg.cropy, startx:startx+self.cfg.cropx]
+            cropped = gray[starty:starty+self.cfg.cropy, startx:startx+self.cfg.cropx]
+        else:
+            # We keep the original size
+            cropped = gray
 
         # Resizing grayscaled, cropped image
-        resized = imresize(cropped, (self.cfg.input_imgy, self.cfg.input_imgx), interp='bilinear', mode=None)
+        resized = imresize(cropped, (self.cfg.input_imgy, self.cfg.input_imgx), interp="bilinear", mode=None)
 
         return resized
 
@@ -62,9 +67,12 @@ class EnvironmentWrapper(object):
 
         # Sampling and visualizing network input
         # if done:
-        #     imsave('assets/'+self.cfg.game_id+'/original.png', original_frame)
+        #     img_dir = os.path.join("assets", self.cfg.game_id)
+        #     if not os.path.exists(img_dir):
+        #         os.makedirs(img_dir)
+        #     imsave(os.path.join(img_dir, "original.png"), original_frame)
         #     for i in range(next_state.shape[0]):
-        #         imsave('assets/'+self.cfg.game_id+'/net-input-'+str(i)+'.png', next_state[i])
+        #         imsave(os.path.join(img_dir, "net-input-"+str(i)+".png"), next_state[i])
 
         # Pushing the freshly preprocessed frame into the FIFO-like buffer.
         self.state_buffer[:-1] = self.state_buffer[1:]

@@ -1,0 +1,29 @@
+action_repeat: null
+action_stat:
+  0: 9598
+  1: 8445
+  2: 8021
+agent_history_length: 4
+cropx: 500
+cropy: 500
+discount_factor: 0.99
+episode_counter: 53
+episodes: 100000
+epsilon: 0.09999999999985551
+eval_episodes: 50
+final_exploration: 0.1
+final_exploration_frame: 10000
+game_id: Acrobot-v1
+initial_exploration: 1
+input_imgx: 84
+input_imgy: 84
+learning_rate: 0.0001
+minibatch_size: 32
+random_seed: 1332
+replay_memory_size: 10000
+replay_start_size: 1000
+target_network_update_frequency: 10000
+time_steps: 500
+total_steps_counter: 26064
+train_steps_counter: 6301
+update_frequency: 4

@@ -11,7 +11,7 @@ class Config(object):
         self.model_dir = self.generate_model_name() if model_dir is None else model_dir
         self.scores_file = os.path.join(self.model_dir, "scores.pickle")
         self.eval_stats_file = os.path.join(self.model_dir, "eval_stats.pickle")
-        
+
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
 
@@ -36,7 +36,7 @@ class Config(object):
                 for key in config:
                     self.keys.add(key)
                     setattr(self, key, config[key])
-    
+
         self.epsilon_annealer = (self.initial_exploration - self.final_exploration) / self.final_exploration_frame
 
     def save(self, scores, eval_stats):
@@ -44,7 +44,7 @@ class Config(object):
         with open(self.model_config, "w", encoding="utf8") as config_file:
             current_config = {key: getattr(self, key) for key in self.keys}
             yaml.dump(current_config, config_file, default_flow_style=False)
-        
+
         with open(self.scores_file, "wb") as f_scores:
             pickle.dump(scores, f_scores, pickle.HIGHEST_PROTOCOL)
 
@@ -68,3 +68,8 @@ class Config(object):
                 return pickle.load(f_eval_stats)
         else:
             return {}
+
+    def set_action_stat(self, action_space_size):
+        if not hasattr(self, "action_stat"):
+            self.keys.add("action_stat")
+            self.action_stat = {i: 0 for i in range(action_space_size)}

@@ -1,8 +1,8 @@
 game_id: 'MountainCar-v0'
 input_imgx: 84
 input_imgy: 84
-cropx: 250
-cropy: 250
+cropx: null
+cropy: null
 
 minibatch_size: 32
 replay_memory_size: 10000  # N
@@ -32,5 +32,4 @@ random_seed: 1332
 episode_counter: 0
 total_steps_counter: 0
 train_steps_counter: 0
-action_stat: {0: 0, 1: 0}
 eval_episodes: 50

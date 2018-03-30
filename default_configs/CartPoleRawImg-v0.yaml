@@ -32,5 +32,4 @@ random_seed: 1332
 episode_counter: 0
 total_steps_counter: 0
 train_steps_counter: 0
-action_stat: {0: 0, 1: 0}
 eval_episodes: 50
