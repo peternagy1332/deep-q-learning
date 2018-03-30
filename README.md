@@ -33,10 +33,4 @@ A modified CartPole-v0 implementation that returns frames headlessly: https://gi
 
 ![CartPoleRawImg-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/CartPoleRawImg-v0/original.png?raw=true)
 
-### Hopper-v2
-
-![Hopper-v2](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/Hopper-v2/original.png?raw=true)
-
-### MountainCar-v0
-
-![MountainCar-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/MountainCar-v0/original.png?raw=true)
+![CartPoleRawImg-v0-eval](https://github.com/peternagy1332/deep-q-learning/blob/master/models/model-CartPoleRawImg-v0/eval.png?raw=true))
