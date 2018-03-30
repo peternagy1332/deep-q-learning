@@ -26,11 +26,17 @@ python main.py
 ### CartPole-v0
 The original OpenAI Gym CartPole-v0 game environment.
 
-![CartPoleRawImg-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/CartPole-v0/original.png?raw=true)
+#### Original input
+![CartPole-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/CartPole-v0/original.png?raw=true)
+
+#### Evaluation
+![CartPole-v0-eval](https://github.com/peternagy1332/deep-q-learning/blob/master/models/model-CartPole-v0/eval.png?raw=true)
 
 ### CartPoleRawImg-v0
 A modified CartPole-v0 implementation that returns frames headlessly: https://github.com/adamtiger/gym.git
 
+#### Original input
 ![CartPoleRawImg-v0](https://github.com/peternagy1332/deep-q-learning/blob/master/assets/CartPoleRawImg-v0/original.png?raw=true)
 
-![CartPoleRawImg-v0-eval](https://github.com/peternagy1332/deep-q-learning/blob/master/models/model-CartPoleRawImg-v0/eval.png?raw=true))
+##### Evaluation
+![CartPoleRawImg-v0-eval](https://github.com/peternagy1332/deep-q-learning/blob/master/models/model-CartPoleRawImg-v0/eval.png?raw=true)
