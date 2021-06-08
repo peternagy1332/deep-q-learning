@@ -23,7 +23,7 @@ mccabe==0.6.1
 networkx==2.1
 numpy==1.14.1
 pep8==1.7.1
-Pillow==5.0.0
+Pillow==8.2.0
 protobuf==3.5.2
 pyglet==1.3.1
 pylint==1.8.2
